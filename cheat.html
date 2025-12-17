@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wordle Cheat Sheet (5-letter words)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Wordle Tools</div>
+    <nav class="nav">
+      <a href="index.html">Daily Guess</a>
+      <a class="active" href="cheat.html">Cheat Sheet</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h1>Wordle Cheat Sheet</h1>
+      <p class="muted">
+        All 5-letter words (alphabetical). Search and filter by letters.
+      </p>
+
+      <div class="filters">
+        <input id="search" class="input" type="search" placeholder="Search (e.g., crane)" />
+        <input id="must" class="input" type="text" maxlength="26" placeholder="Must include letters (e.g., aei)" />
+        <input id="avoid" class="input" type="text" maxlength="26" placeholder="Avoid letters (e.g., rst)" />
+        <button id="clear" class="btn">Clear</button>
+      </div>
+
+      <div class="meta small">
+        <div><span class="label">Total:</span> <span id="total">—</span></div>
+        <div><span class="label">Showing:</span> <span id="showing">—</span></div>
+      </div>
+
+      <div id="list" class="wordList" aria-label="Alphabetical word list"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { loadWords, sanitizeLetters } from './shared.js';
+
+    const searchEl = document.getElementById('search');
+    const mustEl = document.getElementById('must');
+    const avoidEl = document.getElementById('avoid');
+    const clearBtn = document.getElementById('clear');
+
+    const listEl = document.getElementById('list');
+    const totalEl = document.getElementById('total');
+    const showingEl = document.getElementById('showing');
+
+    let words = [];
+
+    function render(list) {
+      listEl.innerHTML = '';
+      const frag = document.createDocumentFragment();
+
+      // group by first letter for easier scanning
+      let current = '';
+      for (const w of list) {
+        const first = w[0].toUpperCase();
+        if (first !== current) {
+          current = first;
+          const h = document.createElement('div');
+          h.className = 'alphaHeader';
+          h.textContent = current;
+          frag.appendChild(h);
+        }
+        const pill = document.createElement('div');
+        pill.className = 'wordPill';
+        pill.textContent = w.toUpperCase();
+        frag.appendChild(pill);
+      }
+
+      listEl.appendChild(frag);
+      showingEl.textContent = String(list.length);
+    }
+
+    function applyFilters() {
+      const q = (searchEl.value || '').trim().toLowerCase();
+      const must = sanitizeLetters(mustEl.value);
+      const avoid = sanitizeLetters(avoidEl.value);
+
+      const filtered = words.filter(w => {
+        if (q && !w.includes(q)) return false;
+
+        for (const ch of must) if (!w.includes(ch)) return false;
+        for (const ch of avoid) if (w.includes(ch)) return false;
+
+        return true;
+      });
+
+      render(filtered);
+    }
+
+    (async function init(){
+      words = (await loadWords('./words.txt')).slice().sort();
+      totalEl.textContent = String(words.length);
+      render(words);
+    })();
+
+    searchEl.addEventListener('input', applyFilters);
+    mustEl.addEventListener('input', applyFilters);
+    avoidEl.addEventListener('input', applyFilters);
+
+    clearBtn.addEventListener('click', () => {
+      searchEl.value = '';
+      mustEl.value = '';
+      avoidEl.value = '';
+      render(words);
+    });
+  </script>
+</body>
+</html>

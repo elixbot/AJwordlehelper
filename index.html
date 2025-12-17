@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wordle Guess Generator (Daily)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Wordle Tools</div>
+    <nav class="nav">
+      <a class="active" href="index.html">Daily Guess</a>
+      <a href="cheat.html">Cheat Sheet</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h1>Guess of the Day</h1>
+      <p class="muted">
+        Uses today’s date to pick a consistent 5-letter word from your list.
+      </p>
+
+      <div class="row">
+        <button id="btnToday" class="btn primary">Show Today’s Guess</button>
+        <button id="btnNext" class="btn">Show Next Guess</button>
+        <button id="btnRandom" class="btn">Surprise Me</button>
+      </div>
+
+      <div class="gridWrap">
+        <div id="grid" class="wordleGrid" aria-label="Wordle style display"></div>
+      </div>
+
+      <div class="meta">
+        <div><span class="label">Date:</span> <span id="dateLabel">—</span></div>
+        <div><span class="label">Index:</span> <span id="indexLabel">—</span></div>
+        <div><span class="label">Word:</span> <span id="wordLabel">—</span></div>
+      </div>
+
+      <hr class="sep"/>
+
+      <details>
+        <summary>How to play Wordle:</summary>
+        <p class="muted">
+          Guess a secret five-letter word in six tries, using color-coded clues (green for correct letter/spot, yellow for correct letter/wrong spot, gray for wrong letter) to deduce the word, remembering to use valid English words and reusing clues in subsequent guesses.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <script type="module">
+    import { loadWords, dayKeyUTC, pickDailyIndex, createGrid, setGridWord } from './shared.js';
+
+    const gridEl = document.getElementById('grid');
+    const dateLabel = document.getElementById('dateLabel');
+    const indexLabel = document.getElementById('indexLabel');
+    const wordLabel = document.getElementById('wordLabel');
+
+    const btnToday = document.getElementById('btnToday');
+    const btnNext = document.getElementById('btnNext');
+    const btnRandom = document.getElementById('btnRandom');
+
+    const grid = createGrid(gridEl, 1, 5);
+
+    let words = [];
+    let offsetDays = 0;
+
+    function showForOffset(daysOffset) {
+      if (!words.length) return;
+
+      const key = dayKeyUTC(daysOffset); // YYYY-MM-DD in UTC
+      const idx = pickDailyIndex(words.length, key);
+      const word = words[idx];
+
+      dateLabel.textContent = key;
+      indexLabel.textContent = String(idx);
+      wordLabel.textContent = word.toUpperCase();
+
+      setGridWord(gridEl, word);
+    }
+
+    (async function init(){
+      words = await loadWords('./words.txt');
+      showForOffset(0);
+    })();
+
+    btnToday.addEventListener('click', () => { offsetDays = 0; showForOffset(offsetDays); });
+    btnNext.addEventListener('click', () => { offsetDays += 1; showForOffset(offsetDays); });
+    btnRandom.addEventListener('click', () => {
+      if (!words.length) return;
+      const word = words[Math.floor(Math.random() * words.length)];
+      dateLabel.textContent = 'Random';
+      indexLabel.textContent = '—';
+      wordLabel.textContent = word.toUpperCase();
+      setGridWord(gridEl, word);
+    });
+  </script>
+</body>
+</html>
