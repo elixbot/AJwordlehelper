@@ -44,6 +44,42 @@ body{
   padding: 6px 10px;
   border-radius: 8px;
 }
+
+/* Mobile: make the two tabs symmetrical */
+@media (max-width: 760px){
+  .topbar{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .brand{
+    text-align: center;
+  }
+
+  .nav{
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 50/50 */
+    gap: 10px;
+    width: 100%;
+  }
+
+  .nav a{
+    margin-left: 0;
+    display: block;
+    text-align: center;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+  }
+
+  .nav a.active{
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.12);
+  }
+}
+
 .nav a.active{ color: var(--text); background: rgba(255,255,255,0.06); }
 
 .container{
@@ -77,6 +113,18 @@ h1{ margin: 0 0 8px; }
   border-radius: 10px;
   cursor: pointer;
 }
+
+/* Reduce accidental mobile zoom & selection */
+.btn,
+.nav a,
+.tile,
+.wordPill {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .btn:hover{ background: var(--btn-hover); }
 .btn.primary{
   background: var(--btn-primary);
