@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wordle Cheat Sheet (5-letter words)</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -53,29 +53,43 @@
     let words = [];
 
     function render(list) {
-      listEl.innerHTML = '';
-      const frag = document.createDocumentFragment();
+  listEl.innerHTML = '';
+  showingEl.textContent = String(list.length);
 
-      // group by first letter for easier scanning
-      let current = '';
-      for (const w of list) {
-        const first = w[0].toUpperCase();
-        if (first !== current) {
-          current = first;
-          const h = document.createElement('div');
-          h.className = 'alphaHeader';
-          h.textContent = current;
-          frag.appendChild(h);
-        }
-        const pill = document.createElement('div');
-        pill.className = 'wordPill';
-        pill.textContent = w.toUpperCase();
-        frag.appendChild(pill);
+  let i = 0;
+  let current = '';
+
+  function chunk() {
+    const frag = document.createDocumentFragment();
+    const end = Math.min(i + 600, list.length); // chunk size
+
+    for (; i < end; i++) {
+      const w = list[i];
+      const first = w[0].toUpperCase();
+
+      if (first !== current) {
+        current = first;
+        const h = document.createElement('div');
+        h.className = 'alphaHeader';
+        h.textContent = current;
+        frag.appendChild(h);
       }
 
-      listEl.appendChild(frag);
-      showingEl.textContent = String(list.length);
+      const pill = document.createElement('div');
+      pill.className = 'wordPill';
+      pill.textContent = w.toUpperCase();
+      frag.appendChild(pill);
     }
+
+    listEl.appendChild(frag);
+
+    if (i < list.length) {
+      requestAnimationFrame(chunk);
+    }
+  }
+
+  requestAnimationFrame(chunk);
+}
 
     function applyFilters() {
       const q = (searchEl.value || '').trim().toLowerCase();

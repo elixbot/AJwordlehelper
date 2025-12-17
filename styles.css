@@ -114,16 +114,15 @@ h1{ margin: 0 0 8px; }
   cursor: pointer;
 }
 
-/* Reduce accidental mobile zoom & selection */
+/* Prevent double-tap zoom on buttons & nav only */
 .btn,
-.nav a,
-.tile,
-.wordPill {
+.nav a {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
 }
+
 
 .btn:hover{ background: var(--btn-hover); }
 .btn.primary{
@@ -193,6 +192,7 @@ h1{ margin: 0 0 8px; }
   border: 1px solid var(--border);
   background: #0f0f10;
   color: var(--text);
+  font-size: 16px;
 }
 
 .wordList{
